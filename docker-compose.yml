@@ -1,0 +1,29 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:16
+    container_name: etl_pg
+    environment:
+      POSTGRES_USER: etluser
+      POSTGRES_PASSWORD: etlpass
+      POSTGRES_DB: crypto
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U etluser -d crypto"]
+      interval: 5s
+      retries: 10
+
+  adminer:
+    image: adminer
+    container_name: etl_adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+  
+  volumes:
+    pgdata:
